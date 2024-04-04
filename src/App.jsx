@@ -1,49 +1,45 @@
 import { useState } from "react";
-import Parant from "./components/Parant";
 
 function App() {
-  const [selectedOption, setSelectedOption] = useState(null);
-  const options = [
-    {
-      label: 'Fruits',
-      options: [
-        { label: 'Apple', value: 'apple' },
-        { label: 'Banana', value: 'banana' },
-        { label: 'Orange', value: 'orange' },
-      ]
-    },
-    {
-      label: 'Vegetables',
-      options: [
-        { label: 'Carrot', value: 'carrot' },
-        { label: 'Broccoli', value: 'broccoli' },
-        { label: 'Spinach', value: 'spinach' },
-      ]
+  const { user } = useSelector((state) => state.user);
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!user) {
+      navigate("/");
     }
-  ];
-  const handleOptionChange = (event) => {
-    setSelectedOption(event.target.value);
-  };
+  }, [user]);
 
   return (
-    <div>
-    <select onChange={handleOptionChange}>
-      <option value="">Select an option</option>
-      {options.map((category, index) => (
-        <optgroup label={category.label} key={index}>
-          {category.options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </optgroup>
-      ))}
-    </select>
-    {selectedOption && (
-      <p>You have selected: {selectedOption}</p>
-    )}
-    
-  </div>
+    <>
+    <NetworkStatusChecker />
+    {user && <Navbar />}
+    <Routes>
+      <Route
+        path="*"
+        element={
+          <h1 className="font-bold text-3xl flex justify-center  h-screen items-center">
+            <div>No Page Found</div>
+          </h1>
+        }
+      ></Route>
+      {user ? (
+        user.role == "ROLE_ADMIN" ? (
+          <Route path="/admin/dashboard" element={<Dashboard />}></Route>
+        ) : (
+          <>
+            <Route
+              path="/user/home/profile-settings"
+              element={<ProfileSettings />}
+            ></Route>
+            <Route path="/user/home" element={<Home />}></Route>
+          </>
+        )
+      ) : (
+        <></>
+      )}
+      <Route path="/" element={<Landing />}></Route>
+    </Routes>
+  </>
   );
 }
 
